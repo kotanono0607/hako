@@ -31,11 +31,8 @@ jobs:
             $triggerFile = "$desktop\mascot_update_signal.txt"
 
             # 更新情報を書き込み
-            $content = @"
-Desktop Mascot Update
-Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-Commit: ${{ github.sha }}
-"@
+            $time = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+            $content = "Desktop Mascot Update`nTime: $time`nCommit: ${{ github.sha }}"
             Set-Content -Path $triggerFile -Value $content -Force
 
             Write-Host "Trigger file created at: $triggerFile"
