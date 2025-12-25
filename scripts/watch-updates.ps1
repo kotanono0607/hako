@@ -1,35 +1,31 @@
 # ==========================================
-# Desktop Mascot - 自動更新監視スクリプト
-# 2つの監視を同時に行う:
-#   1. Git更新 → Desktop Mascot起動
-#   2. トリガーファイル → 実行_pode版.bat起動
+# トリガーファイル監視スクリプト
+# デスクトップのトリガーファイルを監視し、
+# 対応するアプリを起動する
 # ==========================================
 
 # ==========================================
 # 設定: ファイルとフォルダの場所
 # ==========================================
 $desktop = [Environment]::GetFolderPath("Desktop")
-$repoPath = "C:\hako"
 
-# トリガーファイル
+# トリガーファイル（2種類）
 $triggerFileMascot = "$desktop\mascot_update_signal.txt"
 $triggerFilePode = "$desktop\update_signal.txt"
 
 # 音声ファイルの場所
 $soundFolder = "C:\Users\hello\Documents\Sounds"
 $successSound = "$soundFolder\success.wav"
-# $errorSound   = "$soundFolder\error.wav"
 
-# ★起動したいアプリ（実行_pode版.bat）の場所
+# Desktop Mascotのパス
+$repoPath = "C:\hako"
+
+# 実行_pode版.batのパス
 $podeAppPath = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell\実行_pode版.bat"
 $podeAppWorkDir = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell"
 
 # チェック間隔（秒）
 $checkInterval = 1
-
-# Git更新チェック間隔（秒）- 60秒ごとにGit確認
-$gitCheckInterval = 60
-$lastGitCheck = [DateTime]::MinValue
 
 # ==========================================
 # 関数: 現在日時を取得
@@ -50,49 +46,10 @@ function Play-Sound($filePath) {
 }
 
 # ==========================================
-# 関数: Git更新をチェック
-# ==========================================
-function Check-GitUpdate {
-    Set-Location $repoPath
-
-    $localCommit = git rev-parse HEAD 2>$null
-    git fetch origin main --quiet 2>$null
-    $remoteCommit = git rev-parse origin/main 2>$null
-
-    if ($remoteCommit -and $remoteCommit -ne $localCommit) {
-        return @{
-            HasUpdate = $true
-            LocalCommit = $localCommit
-            RemoteCommit = $remoteCommit
-        }
-    }
-    return @{ HasUpdate = $false }
-}
-
-# ==========================================
-# 関数: Git更新を適用
-# ==========================================
-function Apply-GitUpdate($updateInfo) {
-    Set-Location $repoPath
-    git checkout main --quiet 2>$null
-    git pull origin main --quiet 2>$null
-
-    # トリガーファイル（Desktop Mascot用）
-    @"
-Desktop Mascot Update Detected
-Time: $(Get-Timestamp)
-Commit: $($updateInfo.RemoteCommit)
-Previous: $($updateInfo.LocalCommit)
-"@ | Out-File -FilePath $triggerFileMascot -Encoding UTF8
-    Write-Host "[$(Get-Timestamp)] トリガーファイル作成: $triggerFileMascot" -ForegroundColor Cyan
-}
-
-# ==========================================
 # 関数: Desktop Mascotアプリを起動
 # ==========================================
 function Start-DesktopMascot {
-    Set-Location $repoPath
-
+    # 既存のアプリプロセスを終了
     $existingProcess = Get-Process -Name "Desktop Mascot" -ErrorAction SilentlyContinue
     if ($existingProcess) {
         Write-Host "[$(Get-Timestamp)] 既存のDesktop Mascotを終了..." -ForegroundColor Yellow
@@ -118,7 +75,7 @@ function Start-DesktopMascot {
 }
 
 # ==========================================
-# 関数: Pode版アプリを起動
+# 関数: 実行_pode版.batを起動
 # ==========================================
 function Start-PodeApp {
     if (Test-Path $podeAppPath) {
@@ -133,59 +90,46 @@ function Start-PodeApp {
 # メイン処理: 監視ループ
 # ==========================================
 Write-Host "=========================================="
-Write-Host " Desktop Mascot 更新監視"
+Write-Host " トリガーファイル監視"
 Write-Host "=========================================="
 Write-Host "[$(Get-Timestamp)] 監視を開始しました..."
-Write-Host "リポジトリ: $repoPath"
-Write-Host "トリガーファイル (Mascot): $triggerFileMascot"
-Write-Host "トリガーファイル (Pode): $triggerFilePode"
-Write-Host "Git更新チェック間隔: ${gitCheckInterval}秒"
+Write-Host "トリガー1: $triggerFileMascot → Desktop Mascot"
+Write-Host "トリガー2: $triggerFilePode → 実行_pode版.bat"
+Write-Host "チェック間隔: ${checkInterval}秒"
 Write-Host ""
 
 while ($true) {
-    $now = Get-Date
-
     # ==========================================
-    # 1. Git更新チェック（60秒ごと）
+    # 1. mascot_update_signal.txt → Desktop Mascot
     # ==========================================
-    if (($now - $lastGitCheck).TotalSeconds -ge $gitCheckInterval) {
-        $lastGitCheck = $now
-        try {
-            $updateInfo = Check-GitUpdate
+    if (Test-Path $triggerFileMascot) {
+        Write-Host "[$(Get-Timestamp)] mascot_update_signal.txt を検知！" -ForegroundColor Green
 
-            if ($updateInfo.HasUpdate) {
-                Write-Host "[$(Get-Timestamp)] Git更新を検出！" -ForegroundColor Green
-                Write-Host "  前回: $($updateInfo.LocalCommit.Substring(0,7))" -ForegroundColor Gray
-                Write-Host "  最新: $($updateInfo.RemoteCommit.Substring(0,7))" -ForegroundColor Gray
+        # トリガーファイルを削除（連打防止）
+        Remove-Item $triggerFileMascot -Force
 
-                Apply-GitUpdate $updateInfo
-                Start-DesktopMascot
-                Start-Sleep -Milliseconds 500
-                Play-Sound $successSound
-                Write-Host "[$(Get-Timestamp)] Desktop Mascot 起動完了！" -ForegroundColor Cyan
-            }
-            else {
-                Write-Host "[$(Get-Timestamp)] Git更新なし" -ForegroundColor Gray
-            }
-        }
-        catch {
-            Write-Host "[$(Get-Timestamp)] Gitチェックエラー: $_" -ForegroundColor Red
-        }
+        # Desktop Mascot を起動
+        Start-DesktopMascot
+        Start-Sleep -Milliseconds 500
+        Play-Sound $successSound
+
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot 起動完了！" -ForegroundColor Cyan
     }
 
     # ==========================================
-    # 2. トリガーファイル監視（update_signal.txt）
+    # 2. update_signal.txt → 実行_pode版.bat
     # ==========================================
     if (Test-Path $triggerFilePode) {
-        Write-Host "[$(Get-Timestamp)] トリガーファイルを検知！" -ForegroundColor Green
+        Write-Host "[$(Get-Timestamp)] update_signal.txt を検知！" -ForegroundColor Green
 
-        # トリガーファイルを即削除（連打防止）
+        # トリガーファイルを削除（連打防止）
         Remove-Item $triggerFilePode -Force
 
         # 実行_pode版.bat を起動
         Start-PodeApp
         Start-Sleep -Milliseconds 500
         Play-Sound $successSound
+
         Write-Host "[$(Get-Timestamp)] 実行_pode版.bat 起動完了！" -ForegroundColor Cyan
     }
 
