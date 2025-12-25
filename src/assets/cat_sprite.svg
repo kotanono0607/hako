@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 256" width="192" height="256">
+  <defs>
+    <!-- Cat body base -->
+    <g id="cat-body">
+      <ellipse cx="32" cy="42" rx="18" ry="14" fill="#f5a623"/>
+      <ellipse cx="32" cy="42" rx="16" ry="12" fill="#ffcc66"/>
+    </g>
+    <!-- Cat head -->
+    <g id="cat-head">
+      <circle cx="32" cy="24" r="14" fill="#f5a623"/>
+      <circle cx="32" cy="24" r="12" fill="#ffcc66"/>
+      <!-- Ears -->
+      <polygon points="20,14 24,4 28,14" fill="#f5a623"/>
+      <polygon points="36,14 40,4 44,14" fill="#f5a623"/>
+      <polygon points="21,13 24,6 27,13" fill="#ffb6c1"/>
+      <polygon points="37,13 40,6 43,13" fill="#ffb6c1"/>
+      <!-- Eyes -->
+      <ellipse cx="27" cy="22" rx="3" ry="4" fill="white"/>
+      <ellipse cx="37" cy="22" rx="3" ry="4" fill="white"/>
+      <circle cx="27" cy="23" r="2" fill="#333"/>
+      <circle cx="37" cy="23" r="2" fill="#333"/>
+      <!-- Nose -->
+      <polygon points="32,27 30,30 34,30" fill="#ff9999"/>
+      <!-- Mouth -->
+      <path d="M29,31 Q32,34 35,31" stroke="#333" stroke-width="1" fill="none"/>
+      <!-- Whiskers -->
+      <line x1="18" y1="27" x2="10" y2="25" stroke="#333" stroke-width="0.5"/>
+      <line x1="18" y1="29" x2="10" y2="29" stroke="#333" stroke-width="0.5"/>
+      <line x1="46" y1="27" x2="54" y2="25" stroke="#333" stroke-width="0.5"/>
+      <line x1="46" y1="29" x2="54" y2="29" stroke="#333" stroke-width="0.5"/>
+    </g>
+    <!-- Tail -->
+    <g id="tail-right">
+      <path d="M50,40 Q58,35 55,25" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="tail-left">
+      <path d="M14,40 Q6,35 9,25" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <!-- Row 0: Down facing (3 frames) -->
+  <!-- Frame 0,0: Down - Left foot -->
+  <g transform="translate(0, 0)">
+    <use href="#cat-body"/>
+    <use href="#cat-head"/>
+    <use href="#tail-right"/>
+    <!-- Legs -->
+    <rect x="22" y="50" width="6" height="10" rx="2" fill="#f5a623"/>
+    <rect x="36" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 1,0: Down - Stand -->
+  <g transform="translate(64, 0)">
+    <use href="#cat-body"/>
+    <use href="#cat-head"/>
+    <use href="#tail-right"/>
+    <!-- Legs -->
+    <rect x="22" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="36" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 2,0: Down - Right foot -->
+  <g transform="translate(128, 0)">
+    <use href="#cat-body"/>
+    <use href="#cat-head"/>
+    <use href="#tail-right"/>
+    <!-- Legs -->
+    <rect x="22" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="36" y="50" width="6" height="10" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Row 1: Left facing (3 frames) -->
+  <!-- Frame 0,1: Left - Left foot -->
+  <g transform="translate(0, 64)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="24" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="24" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="14,14 18,4 22,14" fill="#f5a623"/>
+    <polygon points="26,14 30,4 34,14" fill="#f5a623"/>
+    <polygon points="15,13 18,6 21,13" fill="#ffb6c1"/>
+    <polygon points="27,13 30,6 33,13" fill="#ffb6c1"/>
+    <ellipse cx="20" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="19" cy="23" r="2" fill="#333"/>
+    <polygon points="15,27 13,30 17,30" fill="#ff9999"/>
+    <path d="M12,31 Q15,34 18,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="8" y1="27" x2="2" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="8" y1="29" x2="2" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q38,50 42,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="20" y="52" width="6" height="10" rx="2" fill="#f5a623"/>
+    <rect x="34" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 1,1: Left - Stand -->
+  <g transform="translate(64, 64)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="24" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="24" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="14,14 18,4 22,14" fill="#f5a623"/>
+    <polygon points="26,14 30,4 34,14" fill="#f5a623"/>
+    <polygon points="15,13 18,6 21,13" fill="#ffb6c1"/>
+    <polygon points="27,13 30,6 33,13" fill="#ffb6c1"/>
+    <ellipse cx="20" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="19" cy="23" r="2" fill="#333"/>
+    <polygon points="15,27 13,30 17,30" fill="#ff9999"/>
+    <path d="M12,31 Q15,34 18,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="8" y1="27" x2="2" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="8" y1="29" x2="2" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q38,50 42,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="20" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="34" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 2,1: Left - Right foot -->
+  <g transform="translate(128, 64)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="24" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="24" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="14,14 18,4 22,14" fill="#f5a623"/>
+    <polygon points="26,14 30,4 34,14" fill="#f5a623"/>
+    <polygon points="15,13 18,6 21,13" fill="#ffb6c1"/>
+    <polygon points="27,13 30,6 33,13" fill="#ffb6c1"/>
+    <ellipse cx="20" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="19" cy="23" r="2" fill="#333"/>
+    <polygon points="15,27 13,30 17,30" fill="#ff9999"/>
+    <path d="M12,31 Q15,34 18,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="8" y1="27" x2="2" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="8" y1="29" x2="2" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q38,50 42,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="20" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="34" y="52" width="6" height="10" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Row 2: Right facing (3 frames) -->
+  <!-- Frame 0,2: Right - Left foot -->
+  <g transform="translate(0, 128)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="40" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="40" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="30,14 34,4 38,14" fill="#f5a623"/>
+    <polygon points="42,14 46,4 50,14" fill="#f5a623"/>
+    <polygon points="31,13 34,6 37,13" fill="#ffb6c1"/>
+    <polygon points="43,13 46,6 49,13" fill="#ffb6c1"/>
+    <ellipse cx="44" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="45" cy="23" r="2" fill="#333"/>
+    <polygon points="49,27 47,30 51,30" fill="#ff9999"/>
+    <path d="M46,31 Q49,34 52,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="56" y1="27" x2="62" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="56" y1="29" x2="62" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q26,50 22,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="24" y="52" width="6" height="10" rx="2" fill="#f5a623"/>
+    <rect x="38" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 1,2: Right - Stand -->
+  <g transform="translate(64, 128)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="40" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="40" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="30,14 34,4 38,14" fill="#f5a623"/>
+    <polygon points="42,14 46,4 50,14" fill="#f5a623"/>
+    <polygon points="31,13 34,6 37,13" fill="#ffb6c1"/>
+    <polygon points="43,13 46,6 49,13" fill="#ffb6c1"/>
+    <ellipse cx="44" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="45" cy="23" r="2" fill="#333"/>
+    <polygon points="49,27 47,30 51,30" fill="#ff9999"/>
+    <path d="M46,31 Q49,34 52,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="56" y1="27" x2="62" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="56" y1="29" x2="62" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q26,50 22,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="24" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="38" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 2,2: Right - Right foot -->
+  <g transform="translate(128, 128)">
+    <ellipse cx="32" cy="42" rx="14" ry="18" fill="#f5a623"/>
+    <ellipse cx="32" cy="42" rx="12" ry="16" fill="#ffcc66"/>
+    <circle cx="40" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="40" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="30,14 34,4 38,14" fill="#f5a623"/>
+    <polygon points="42,14 46,4 50,14" fill="#f5a623"/>
+    <polygon points="31,13 34,6 37,13" fill="#ffb6c1"/>
+    <polygon points="43,13 46,6 49,13" fill="#ffb6c1"/>
+    <ellipse cx="44" cy="22" rx="3" ry="4" fill="white"/>
+    <circle cx="45" cy="23" r="2" fill="#333"/>
+    <polygon points="49,27 47,30 51,30" fill="#ff9999"/>
+    <path d="M46,31 Q49,34 52,31" stroke="#333" stroke-width="1" fill="none"/>
+    <line x1="56" y1="27" x2="62" y2="25" stroke="#333" stroke-width="0.5"/>
+    <line x1="56" y1="29" x2="62" y2="29" stroke="#333" stroke-width="0.5"/>
+    <path d="M32,55 Q26,50 22,40" stroke="#f5a623" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="24" y="54" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="38" y="52" width="6" height="10" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Row 3: Up facing (3 frames) -->
+  <!-- Frame 0,3: Up - Left foot -->
+  <g transform="translate(0, 192)">
+    <use href="#cat-body"/>
+    <circle cx="32" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="32" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="20,14 24,4 28,14" fill="#f5a623"/>
+    <polygon points="36,14 40,4 44,14" fill="#f5a623"/>
+    <polygon points="21,13 24,6 27,13" fill="#ffb6c1"/>
+    <polygon points="37,13 40,6 43,13" fill="#ffb6c1"/>
+    <use href="#tail-right"/>
+    <rect x="22" y="50" width="6" height="10" rx="2" fill="#f5a623"/>
+    <rect x="36" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 1,3: Up - Stand -->
+  <g transform="translate(64, 192)">
+    <use href="#cat-body"/>
+    <circle cx="32" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="32" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="20,14 24,4 28,14" fill="#f5a623"/>
+    <polygon points="36,14 40,4 44,14" fill="#f5a623"/>
+    <polygon points="21,13 24,6 27,13" fill="#ffb6c1"/>
+    <polygon points="37,13 40,6 43,13" fill="#ffb6c1"/>
+    <use href="#tail-right"/>
+    <rect x="22" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="36" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+  </g>
+
+  <!-- Frame 2,3: Up - Right foot -->
+  <g transform="translate(128, 192)">
+    <use href="#cat-body"/>
+    <circle cx="32" cy="24" r="14" fill="#f5a623"/>
+    <circle cx="32" cy="24" r="12" fill="#ffcc66"/>
+    <polygon points="20,14 24,4 28,14" fill="#f5a623"/>
+    <polygon points="36,14 40,4 44,14" fill="#f5a623"/>
+    <polygon points="21,13 24,6 27,13" fill="#ffb6c1"/>
+    <polygon points="37,13 40,6 43,13" fill="#ffb6c1"/>
+    <use href="#tail-right"/>
+    <rect x="22" y="52" width="6" height="8" rx="2" fill="#f5a623"/>
+    <rect x="36" y="50" width="6" height="10" rx="2" fill="#f5a623"/>
+  </g>
+</svg>

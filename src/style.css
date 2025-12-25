@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 320px;
+  height: 280px;
+  overflow: hidden;
+  background: transparent;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+
+.box-container {
+  width: 320px;
+  height: 280px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  -webkit-app-region: drag;
+}
+
+.box {
+  width: 280px;
+  height: 200px;
+  border: 4px solid #8B4513;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #DEB887 0%, #D2B48C 50%, #C4A574 100%);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 20px rgba(139, 69, 19, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+  -webkit-app-region: no-drag;
+}
+
+.box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(139, 69, 19, 0.05) 10px,
+      rgba(139, 69, 19, 0.05) 20px
+    );
+  pointer-events: none;
+}
+
+.cat {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  background-image: url('/src/assets/cat_sprite.svg');
+  background-size: 192px 256px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  transition: none;
+}
+
+/* Direction classes - sprite positions */
+.cat.down { background-position-y: 0px; }
+.cat.left { background-position-y: -64px; }
+.cat.right { background-position-y: -128px; }
+.cat.up { background-position-y: -192px; }
+
+/* Animation frame classes */
+.cat.frame-0 { background-position-x: 0px; }
+.cat.frame-1 { background-position-x: -64px; }
+.cat.frame-2 { background-position-x: -128px; }
