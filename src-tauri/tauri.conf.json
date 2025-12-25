@@ -14,8 +14,8 @@
     "windows": [
       {
         "title": "Desktop Mascot",
-        "width": 320,
-        "height": 280,
+        "width": 480,
+        "height": 400,
         "resizable": false,
         "decorations": false,
         "transparent": true,
