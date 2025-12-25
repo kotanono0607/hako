@@ -5,8 +5,8 @@
 }
 
 html, body {
-  width: 320px;
-  height: 280px;
+  width: 480px;
+  height: 400px;
   overflow: hidden;
   background: transparent;
 }
@@ -21,8 +21,8 @@ html, body {
 }
 
 .box-container {
-  width: 320px;
-  height: 280px;
+  width: 480px;
+  height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,8 +31,8 @@ html, body {
 }
 
 .box {
-  width: 280px;
-  height: 200px;
+  width: 440px;
+  height: 320px;
   border: 4px solid #8B4513;
   border-radius: 8px;
   background: linear-gradient(135deg, #DEB887 0%, #D2B48C 50%, #C4A574 100%);

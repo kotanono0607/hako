@@ -3,8 +3,8 @@
 // Constants
 const SPRITE_SIZE = 64;
 const SPEECH_DURATION = 3000; // セリフ表示時間（ms）
-const BOX_WIDTH = 280 - 8; // minus border
-const BOX_HEIGHT = 200 - 8; // minus border
+const BOX_WIDTH = 440 - 8; // minus border
+const BOX_HEIGHT = 320 - 8; // minus border
 const MOVE_SPEED = 1; // pixels per frame
 const MOVE_INTERVAL = 50; // ms
 const ANIMATION_INTERVAL = 150; // ms
