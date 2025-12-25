@@ -2,6 +2,7 @@
 
 // Constants
 const SPRITE_SIZE = 64;
+const SPEECH_DURATION = 3000; // セリフ表示時間（ms）
 const BOX_WIDTH = 280 - 8; // minus border
 const BOX_HEIGHT = 200 - 8; // minus border
 const MOVE_SPEED = 2; // pixels per frame
@@ -34,6 +35,22 @@ const DIRECTIONS = {
 
 const DIRECTION_NAMES = ['down', 'left', 'right', 'up'];
 
+// セリフリスト
+const SPEECHES = [
+  'こんにちは！',
+  'なあに？',
+  '遊んでくれるの？',
+  'えへへ〜',
+  'お腹すいた...',
+  '今日もいい天気だね',
+  'zzz...あ、起きてるよ！',
+  'なでなでして〜',
+  '一緒にいてくれてありがとう',
+  'お仕事がんばってね！',
+  '休憩も大事だよ？',
+  'わーい！'
+];
+
 // Character state
 const character = {
   x: Math.floor((BOX_WIDTH - SPRITE_SIZE) / 2),
@@ -43,6 +60,10 @@ const character = {
   isMoving: true,
   element: null
 };
+
+// Speech bubble state
+let speechBubble = null;
+let speechTimeout = null;
 
 // Preload images
 const imageCache = {};
@@ -60,6 +81,8 @@ function preloadImages() {
 // Initialize
 function init() {
   character.element = document.getElementById('character');
+  speechBubble = document.getElementById('speech-bubble');
+
   if (!character.element) {
     console.error('Character element not found');
     return;
@@ -71,6 +94,9 @@ function init() {
   // Set initial position
   updatePosition();
   updateSprite();
+
+  // Add click event for speech
+  character.element.addEventListener('click', onCharacterClick);
 
   // Start animation and movement loops
   setInterval(animationLoop, ANIMATION_INTERVAL);
@@ -177,6 +203,47 @@ function movementLoop() {
   character.y = Math.max(0, Math.min(BOX_HEIGHT - SPRITE_SIZE, character.y));
 
   updatePosition();
+}
+
+// Get random speech
+function getRandomSpeech() {
+  return SPEECHES[Math.floor(Math.random() * SPEECHES.length)];
+}
+
+// Show speech bubble
+function showSpeech(text) {
+  if (!speechBubble) return;
+
+  // Clear existing timeout
+  if (speechTimeout) {
+    clearTimeout(speechTimeout);
+  }
+
+  // Set text and position
+  speechBubble.textContent = text;
+  speechBubble.classList.remove('hidden');
+
+  // Position above character
+  const bubbleX = Math.max(5, Math.min(character.x - 20, BOX_WIDTH - 160));
+  const bubbleY = Math.max(5, character.y - 50);
+  speechBubble.style.left = `${bubbleX}px`;
+  speechBubble.style.top = `${bubbleY}px`;
+
+  // Auto hide after duration
+  speechTimeout = setTimeout(hideSpeech, SPEECH_DURATION);
+}
+
+// Hide speech bubble
+function hideSpeech() {
+  if (!speechBubble) return;
+  speechBubble.classList.add('hidden');
+}
+
+// Character click handler
+function onCharacterClick(event) {
+  event.stopPropagation();
+  const speech = getRandomSpeech();
+  showSpeech(speech);
 }
 
 // Start when DOM is ready
