@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pull and Trigger
+        shell: pwsh
         run: |
           $projectPath = "C:\hako"
 
