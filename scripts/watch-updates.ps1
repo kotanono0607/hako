@@ -1,5 +1,8 @@
 # ==========================================
 # Desktop Mascot - 自動更新監視スクリプト
+# 2つの監視を同時に行う:
+#   1. Git更新 → Desktop Mascot起動
+#   2. トリガーファイル → 実行_pode版.bat起動
 # ==========================================
 
 # ==========================================
@@ -8,7 +11,7 @@
 $desktop = [Environment]::GetFolderPath("Desktop")
 $repoPath = "C:\hako"
 
-# トリガーファイル（別々）
+# トリガーファイル
 $triggerFileMascot = "$desktop\mascot_update_signal.txt"
 $triggerFilePode = "$desktop\update_signal.txt"
 
@@ -22,7 +25,11 @@ $podeAppPath = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpower
 $podeAppWorkDir = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell"
 
 # チェック間隔（秒）
-$checkInterval = 60
+$checkInterval = 1
+
+# Git更新チェック間隔（秒）- 60秒ごとにGit確認
+$gitCheckInterval = 60
+$lastGitCheck = [DateTime]::MinValue
 
 # ==========================================
 # 関数: 現在日時を取得
@@ -37,7 +44,7 @@ function Get-Timestamp {
 function Play-Sound($filePath) {
     if (Test-Path $filePath) {
         $player = New-Object System.Media.SoundPlayer $filePath
-        $player.PlaySync() # 再生が終わるまで待つ
+        $player.PlaySync()
         $player.Dispose()
     }
 }
@@ -48,13 +55,8 @@ function Play-Sound($filePath) {
 function Check-GitUpdate {
     Set-Location $repoPath
 
-    # 現在のコミットハッシュ
     $localCommit = git rev-parse HEAD 2>$null
-
-    # リモートの変更を取得
     git fetch origin main --quiet 2>$null
-
-    # リモートのmainの最新コミット
     $remoteCommit = git rev-parse origin/main 2>$null
 
     if ($remoteCommit -and $remoteCommit -ne $localCommit) {
@@ -64,39 +66,25 @@ function Check-GitUpdate {
             RemoteCommit = $remoteCommit
         }
     }
-
     return @{ HasUpdate = $false }
 }
 
 # ==========================================
-# 関数: 更新を適用
+# 関数: Git更新を適用
 # ==========================================
-function Apply-Update($updateInfo) {
+function Apply-GitUpdate($updateInfo) {
     Set-Location $repoPath
-
-    # mainブランチに切り替えてpull
     git checkout main --quiet 2>$null
     git pull origin main --quiet 2>$null
 
-    # トリガーファイルを作成（Desktop Mascot用）
-    $contentMascot = @"
+    # トリガーファイル（Desktop Mascot用）
+    @"
 Desktop Mascot Update Detected
 Time: $(Get-Timestamp)
 Commit: $($updateInfo.RemoteCommit)
 Previous: $($updateInfo.LocalCommit)
-"@
-    $contentMascot | Out-File -FilePath $triggerFileMascot -Encoding UTF8
+"@ | Out-File -FilePath $triggerFileMascot -Encoding UTF8
     Write-Host "[$(Get-Timestamp)] トリガーファイル作成: $triggerFileMascot" -ForegroundColor Cyan
-
-    # トリガーファイルを作成（Pode版用）
-    $contentPode = @"
-Update Signal
-Time: $(Get-Timestamp)
-Commit: $($updateInfo.RemoteCommit)
-Previous: $($updateInfo.LocalCommit)
-"@
-    $contentPode | Out-File -FilePath $triggerFilePode -Encoding UTF8
-    Write-Host "[$(Get-Timestamp)] トリガーファイル作成: $triggerFilePode" -ForegroundColor Cyan
 }
 
 # ==========================================
@@ -105,30 +93,25 @@ Previous: $($updateInfo.LocalCommit)
 function Start-DesktopMascot {
     Set-Location $repoPath
 
-    # 既存のアプリプロセスを終了（もし実行中なら）
     $existingProcess = Get-Process -Name "Desktop Mascot" -ErrorAction SilentlyContinue
     if ($existingProcess) {
-        Write-Host "[$(Get-Timestamp)] 既存のDesktop Mascotを終了しています..." -ForegroundColor Yellow
+        Write-Host "[$(Get-Timestamp)] 既存のDesktop Mascotを終了..." -ForegroundColor Yellow
         $existingProcess | Stop-Process -Force
         Start-Sleep -Seconds 1
     }
 
-    # ビルド済み実行ファイルのパス
     $exePath = "$repoPath\src-tauri\target\release\Desktop Mascot.exe"
     $devExePath = "$repoPath\src-tauri\target\debug\Desktop Mascot.exe"
 
     if (Test-Path $exePath) {
-        # リリースビルドがあれば起動
         Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (Release)..." -ForegroundColor Yellow
         Start-Process -FilePath $exePath -WorkingDirectory $repoPath
     }
     elseif (Test-Path $devExePath) {
-        # デバッグビルドがあれば起動
         Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (Debug)..." -ForegroundColor Yellow
         Start-Process -FilePath $devExePath -WorkingDirectory $repoPath
     }
     else {
-        # ビルドされていない場合は開発サーバーを起動
         Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (開発モード)..." -ForegroundColor Yellow
         Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "cd /d $repoPath && npm run tauri dev" -WorkingDirectory $repoPath
     }
@@ -147,24 +130,6 @@ function Start-PodeApp {
 }
 
 # ==========================================
-# 関数: アクションを実行
-# ==========================================
-function Execute-Action {
-    Write-Host "[$(Get-Timestamp)] 更新を検知！アクションを実行します。" -ForegroundColor Green
-
-    # 1. Desktop Mascotアプリを起動
-    Start-DesktopMascot
-
-    # 2. 少しだけ間を作る（0.5秒）
-    Start-Sleep -Milliseconds 500
-
-    # 3. 成功ボイスを再生
-    Play-Sound $successSound
-
-    Write-Host "[$(Get-Timestamp)] アクション完了！" -ForegroundColor Cyan
-}
-
-# ==========================================
 # メイン処理: 監視ループ
 # ==========================================
 Write-Host "=========================================="
@@ -174,31 +139,54 @@ Write-Host "[$(Get-Timestamp)] 監視を開始しました..."
 Write-Host "リポジトリ: $repoPath"
 Write-Host "トリガーファイル (Mascot): $triggerFileMascot"
 Write-Host "トリガーファイル (Pode): $triggerFilePode"
-Write-Host "チェック間隔: ${checkInterval}秒"
+Write-Host "Git更新チェック間隔: ${gitCheckInterval}秒"
 Write-Host ""
 
 while ($true) {
-    try {
-        # Git更新をチェック
-        $updateInfo = Check-GitUpdate
+    $now = Get-Date
 
-        if ($updateInfo.HasUpdate) {
-            Write-Host "[$(Get-Timestamp)] 新しい更新を検出しました!" -ForegroundColor Green
-            Write-Host "  前回: $($updateInfo.LocalCommit.Substring(0,7))" -ForegroundColor Gray
-            Write-Host "  最新: $($updateInfo.RemoteCommit.Substring(0,7))" -ForegroundColor Gray
+    # ==========================================
+    # 1. Git更新チェック（60秒ごと）
+    # ==========================================
+    if (($now - $lastGitCheck).TotalSeconds -ge $gitCheckInterval) {
+        $lastGitCheck = $now
+        try {
+            $updateInfo = Check-GitUpdate
 
-            # 更新を適用（トリガーファイル作成）
-            Apply-Update $updateInfo
+            if ($updateInfo.HasUpdate) {
+                Write-Host "[$(Get-Timestamp)] Git更新を検出！" -ForegroundColor Green
+                Write-Host "  前回: $($updateInfo.LocalCommit.Substring(0,7))" -ForegroundColor Gray
+                Write-Host "  最新: $($updateInfo.RemoteCommit.Substring(0,7))" -ForegroundColor Gray
 
-            # アクションを実行（両方のアプリを起動）
-            Execute-Action
+                Apply-GitUpdate $updateInfo
+                Start-DesktopMascot
+                Start-Sleep -Milliseconds 500
+                Play-Sound $successSound
+                Write-Host "[$(Get-Timestamp)] Desktop Mascot 起動完了！" -ForegroundColor Cyan
+            }
+            else {
+                Write-Host "[$(Get-Timestamp)] Git更新なし" -ForegroundColor Gray
+            }
         }
-        else {
-            Write-Host "[$(Get-Timestamp)] 更新なし" -ForegroundColor Gray
+        catch {
+            Write-Host "[$(Get-Timestamp)] Gitチェックエラー: $_" -ForegroundColor Red
         }
     }
-    catch {
-        Write-Host "[$(Get-Timestamp)] エラー: $_" -ForegroundColor Red
+
+    # ==========================================
+    # 2. トリガーファイル監視（update_signal.txt）
+    # ==========================================
+    if (Test-Path $triggerFilePode) {
+        Write-Host "[$(Get-Timestamp)] トリガーファイルを検知！" -ForegroundColor Green
+
+        # トリガーファイルを即削除（連打防止）
+        Remove-Item $triggerFilePode -Force
+
+        # 実行_pode版.bat を起動
+        Start-PodeApp
+        Start-Sleep -Milliseconds 500
+        Play-Sound $successSound
+        Write-Host "[$(Get-Timestamp)] 実行_pode版.bat 起動完了！" -ForegroundColor Cyan
     }
 
     Start-Sleep -Seconds $checkInterval
