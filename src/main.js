@@ -12,6 +12,8 @@ const RANDOM_TURN_CHANCE = 0.01; // 1% per frame
 const STOP_CHANCE = 0.005; // 0.5% per frame
 const MIN_STOP_TIME = 1000; // ms
 const MAX_STOP_TIME = 3000; // ms
+const MIN_RANDOM_SPEECH_INTERVAL = 15000; // 最短15秒
+const MAX_RANDOM_SPEECH_INTERVAL = 45000; // 最長45秒
 
 // Frame mapping for each direction
 // Format: direction -> [left_foot, stand, right_foot]
@@ -35,7 +37,7 @@ const DIRECTIONS = {
 
 const DIRECTION_NAMES = ['down', 'left', 'right', 'up'];
 
-// セリフリスト
+// セリフリスト（クリック時）
 const SPEECHES = [
   'こんにちは！',
   'なあに？',
@@ -49,6 +51,22 @@ const SPEECHES = [
   'お仕事がんばってね！',
   '休憩も大事だよ？',
   'わーい！'
+];
+
+// 独り言リスト（自発的に話す）
+const MONOLOGUES = [
+  'ふぅ〜...',
+  'んー？',
+  'らんらん♪',
+  'ぽかぽかだなぁ',
+  'お散歩たのしい！',
+  '...zzz...ハッ！',
+  'きょろきょろ',
+  'なんか楽しいこと\nないかなー',
+  'ひまだなぁ',
+  'おなかすいてきた...',
+  'るるる〜♪',
+  '今日もがんばるぞ！'
 ];
 
 // Character state
@@ -101,6 +119,9 @@ function init() {
   // Start animation and movement loops
   setInterval(animationLoop, ANIMATION_INTERVAL);
   setInterval(movementLoop, MOVE_INTERVAL);
+
+  // Start random speech timer
+  scheduleRandomSpeech();
 }
 
 // Update character's visual position
@@ -208,6 +229,27 @@ function movementLoop() {
 // Get random speech
 function getRandomSpeech() {
   return SPEECHES[Math.floor(Math.random() * SPEECHES.length)];
+}
+
+// Get random monologue
+function getRandomMonologue() {
+  return MONOLOGUES[Math.floor(Math.random() * MONOLOGUES.length)];
+}
+
+// Schedule next random speech
+function scheduleRandomSpeech() {
+  const interval = MIN_RANDOM_SPEECH_INTERVAL +
+    Math.random() * (MAX_RANDOM_SPEECH_INTERVAL - MIN_RANDOM_SPEECH_INTERVAL);
+
+  setTimeout(() => {
+    // Only speak if not already speaking
+    if (!speechTimeout) {
+      const monologue = getRandomMonologue();
+      showSpeech(monologue);
+    }
+    // Schedule next random speech
+    scheduleRandomSpeech();
+  }, interval);
 }
 
 // Show speech bubble
