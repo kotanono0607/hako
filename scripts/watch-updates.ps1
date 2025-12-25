@@ -14,10 +14,6 @@ $soundFolder = "C:\Users\hello\Documents\Sounds"
 $successSound = "$soundFolder\success.wav"
 # $errorSound   = "$soundFolder\error.wav"
 
-# ★起動したいアプリ（バッチファイル）の場所
-$appPath = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell\実行_pode版.bat"
-$appWorkDir = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell"
-
 # チェック間隔（秒）
 $checkInterval = 60
 
@@ -86,18 +82,48 @@ Previous: $($updateInfo.LocalCommit)
 }
 
 # ==========================================
+# 関数: Desktop Mascotアプリを起動
+# ==========================================
+function Start-DesktopMascot {
+    Set-Location $repoPath
+
+    # 既存のアプリプロセスを終了（もし実行中なら）
+    $existingProcess = Get-Process -Name "Desktop Mascot" -ErrorAction SilentlyContinue
+    if ($existingProcess) {
+        Write-Host "[$(Get-Timestamp)] 既存のアプリを終了しています..." -ForegroundColor Yellow
+        $existingProcess | Stop-Process -Force
+        Start-Sleep -Seconds 1
+    }
+
+    # ビルド済み実行ファイルのパス
+    $exePath = "$repoPath\src-tauri\target\release\Desktop Mascot.exe"
+    $devExePath = "$repoPath\src-tauri\target\debug\Desktop Mascot.exe"
+
+    if (Test-Path $exePath) {
+        # リリースビルドがあれば起動
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動しています (Release)..." -ForegroundColor Yellow
+        Start-Process -FilePath $exePath -WorkingDirectory $repoPath
+    }
+    elseif (Test-Path $devExePath) {
+        # デバッグビルドがあれば起動
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動しています (Debug)..." -ForegroundColor Yellow
+        Start-Process -FilePath $devExePath -WorkingDirectory $repoPath
+    }
+    else {
+        # ビルドされていない場合は開発サーバーを起動
+        Write-Host "[$(Get-Timestamp)] ビルド済み実行ファイルがないため、開発モードで起動します..." -ForegroundColor Yellow
+        Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "cd /d $repoPath && npm run tauri dev" -WorkingDirectory $repoPath
+    }
+}
+
+# ==========================================
 # 関数: アクションを実行
 # ==========================================
 function Execute-Action {
     Write-Host "[$(Get-Timestamp)] 更新を検知！アクションを実行します。" -ForegroundColor Green
 
-    # 1. アプリ（Pode版）を起動
-    if (Test-Path $appPath) {
-        Write-Host "[$(Get-Timestamp)] アプリを起動しています..." -ForegroundColor Yellow
-        Start-Process -FilePath $appPath -WorkingDirectory $appWorkDir
-    } else {
-        Write-Warning "[$(Get-Timestamp)] アプリが見つかりません: $appPath"
-    }
+    # 1. Desktop Mascotアプリを起動
+    Start-DesktopMascot
 
     # 2. 少しだけ間を作る（0.5秒）
     Start-Sleep -Milliseconds 500
