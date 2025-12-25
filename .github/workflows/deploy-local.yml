@@ -1,0 +1,45 @@
+name: Deploy to Local PC
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["Auto Merge to Main"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: |
+      (github.event_name == 'push' || github.event.workflow_run.conclusion == 'success')
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Pull and Trigger
+        run: |
+          $projectPath = "C:\hako"
+
+          if (Test-Path $projectPath) {
+            Set-Location $projectPath
+            git pull origin main
+
+            # デスクトップにトリガーファイルを作成
+            $desktop = [Environment]::GetFolderPath("Desktop")
+            $triggerFile = "$desktop\mascot_update_signal.txt"
+
+            # 更新情報を書き込み
+            $content = @"
+Desktop Mascot Update
+Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+Commit: ${{ github.sha }}
+"@
+            Set-Content -Path $triggerFile -Value $content -Force
+
+            Write-Host "Trigger file created at: $triggerFile"
+          } else {
+            Write-Error "Target folder not found: $projectPath"
+            exit 1
+          }
