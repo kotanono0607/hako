@@ -70,4 +70,57 @@ html, body {
   background-repeat: no-repeat;
   background-position: center bottom;
   image-rendering: pixelated;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* 吹き出し */
+.speech-bubble {
+  position: absolute;
+  background: white;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'メイリオ', 'Meiryo', sans-serif;
+  max-width: 150px;
+  word-wrap: break-word;
+  z-index: 20;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 20px;
+  border-width: 10px 8px 0 8px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -13px;
+  left: 18px;
+  border-width: 12px 10px 0 10px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.speech-bubble.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
