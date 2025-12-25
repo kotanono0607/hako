@@ -1,4 +1,4 @@
-// Desktop Mascot - Cat Animation Controller
+// Desktop Mascot - Character Animation Controller
 
 // Constants
 const SPRITE_SIZE = 64;
@@ -12,21 +12,30 @@ const STOP_CHANCE = 0.005; // 0.5% per frame
 const MIN_STOP_TIME = 1000; // ms
 const MAX_STOP_TIME = 3000; // ms
 
+// Frame mapping for each direction
+// Format: direction -> [left_foot, stand, right_foot]
+const FRAME_MAP = {
+  down:  ['frame_00.png', 'frame_01.png', 'frame_02.png'],
+  left:  ['frame_03.png', 'frame_04.png', 'frame_05.png'],
+  right: ['frame_06.png', 'frame_07.png', 'frame_08.png'],
+  up:    ['frame_09.png', 'frame_10.png', 'frame_11.png']
+};
+
 // Animation frame sequence: 0 -> 1 -> 2 -> 1 -> 0 ...
 const FRAME_SEQUENCE = [0, 1, 2, 1];
 
 // Direction definitions
 const DIRECTIONS = {
-  down: { row: 0, dx: 0, dy: 1 },
-  left: { row: 1, dx: -1, dy: 0 },
-  right: { row: 2, dx: 1, dy: 0 },
-  up: { row: 3, dx: 0, dy: -1 }
+  down:  { dx: 0, dy: 1 },
+  left:  { dx: -1, dy: 0 },
+  right: { dx: 1, dy: 0 },
+  up:    { dx: 0, dy: -1 }
 };
 
 const DIRECTION_NAMES = ['down', 'left', 'right', 'up'];
 
-// Cat state
-const cat = {
+// Character state
+const character = {
   x: Math.floor((BOX_WIDTH - SPRITE_SIZE) / 2),
   y: Math.floor((BOX_HEIGHT - SPRITE_SIZE) / 2),
   direction: 'down',
@@ -35,13 +44,29 @@ const cat = {
   element: null
 };
 
+// Preload images
+const imageCache = {};
+
+function preloadImages() {
+  for (const direction of DIRECTION_NAMES) {
+    for (const frame of FRAME_MAP[direction]) {
+      const img = new Image();
+      img.src = `/src/assets/${frame}`;
+      imageCache[frame] = img;
+    }
+  }
+}
+
 // Initialize
 function init() {
-  cat.element = document.getElementById('cat');
-  if (!cat.element) {
-    console.error('Cat element not found');
+  character.element = document.getElementById('character');
+  if (!character.element) {
+    console.error('Character element not found');
     return;
   }
+
+  // Preload all images
+  preloadImages();
 
   // Set initial position
   updatePosition();
@@ -52,28 +77,24 @@ function init() {
   setInterval(movementLoop, MOVE_INTERVAL);
 }
 
-// Update cat's visual position
+// Update character's visual position
 function updatePosition() {
-  cat.element.style.left = `${cat.x}px`;
-  cat.element.style.top = `${cat.y}px`;
+  character.element.style.left = `${character.x}px`;
+  character.element.style.top = `${character.y}px`;
 }
 
 // Update sprite frame
 function updateSprite() {
-  // Remove all direction and frame classes
-  cat.element.classList.remove('down', 'left', 'right', 'up');
-  cat.element.classList.remove('frame-0', 'frame-1', 'frame-2');
-
-  // Add current direction and frame
-  cat.element.classList.add(cat.direction);
-  cat.element.classList.add(`frame-${FRAME_SEQUENCE[cat.frameIndex]}`);
+  const frameIdx = FRAME_SEQUENCE[character.frameIndex];
+  const frameName = FRAME_MAP[character.direction][frameIdx];
+  character.element.style.backgroundImage = `url('/src/assets/${frameName}')`;
 }
 
 // Animation loop - handles sprite animation
 function animationLoop() {
-  if (cat.isMoving) {
+  if (character.isMoving) {
     // Advance to next frame in sequence
-    cat.frameIndex = (cat.frameIndex + 1) % FRAME_SEQUENCE.length;
+    character.frameIndex = (character.frameIndex + 1) % FRAME_SEQUENCE.length;
     updateSprite();
   }
 }
@@ -83,88 +104,77 @@ function getRandomDirection() {
   return DIRECTION_NAMES[Math.floor(Math.random() * DIRECTION_NAMES.length)];
 }
 
-// Get opposite direction (for boundary bouncing)
-function getOppositeDirection(dir) {
-  switch (dir) {
-    case 'left': return 'right';
-    case 'right': return 'left';
-    case 'up': return 'down';
-    case 'down': return 'up';
-    default: return 'down';
-  }
-}
-
 // Check if at boundary
 function checkBoundary() {
-  const dir = DIRECTIONS[cat.direction];
-  const nextX = cat.x + dir.dx * MOVE_SPEED;
-  const nextY = cat.y + dir.dy * MOVE_SPEED;
+  const dir = DIRECTIONS[character.direction];
+  const nextX = character.x + dir.dx * MOVE_SPEED;
+  const nextY = character.y + dir.dy * MOVE_SPEED;
 
-  if (nextX <= 0 && cat.direction === 'left') {
+  if (nextX <= 0 && character.direction === 'left') {
     return 'right';
   }
-  if (nextX >= BOX_WIDTH - SPRITE_SIZE && cat.direction === 'right') {
+  if (nextX >= BOX_WIDTH - SPRITE_SIZE && character.direction === 'right') {
     return 'left';
   }
-  if (nextY <= 0 && cat.direction === 'up') {
+  if (nextY <= 0 && character.direction === 'up') {
     return 'down';
   }
-  if (nextY >= BOX_HEIGHT - SPRITE_SIZE && cat.direction === 'down') {
+  if (nextY >= BOX_HEIGHT - SPRITE_SIZE && character.direction === 'down') {
     return 'up';
   }
   return null;
 }
 
-// Stop the cat for a random duration
-function stopCat() {
-  cat.isMoving = false;
-  cat.frameIndex = 1; // Stand frame
+// Stop the character for a random duration
+function stopCharacter() {
+  character.isMoving = false;
+  character.frameIndex = 1; // Stand frame
   updateSprite();
 
   const stopDuration = MIN_STOP_TIME + Math.random() * (MAX_STOP_TIME - MIN_STOP_TIME);
   setTimeout(() => {
-    cat.isMoving = true;
+    character.isMoving = true;
     // Maybe change direction after stopping
     if (Math.random() < 0.5) {
-      cat.direction = getRandomDirection();
+      character.direction = getRandomDirection();
     }
   }, stopDuration);
 }
 
 // Movement loop - handles position updates
 function movementLoop() {
-  if (!cat.isMoving) {
+  if (!character.isMoving) {
     return;
   }
 
   // Random stop check
   if (Math.random() < STOP_CHANCE) {
-    stopCat();
+    stopCharacter();
     return;
   }
 
   // Check boundary collision
   const newDir = checkBoundary();
   if (newDir) {
-    cat.direction = newDir;
+    character.direction = newDir;
     updateSprite();
     return;
   }
 
   // Random direction change
   if (Math.random() < RANDOM_TURN_CHANCE) {
-    cat.direction = getRandomDirection();
+    character.direction = getRandomDirection();
     updateSprite();
   }
 
   // Move in current direction
-  const dir = DIRECTIONS[cat.direction];
-  cat.x += dir.dx * MOVE_SPEED;
-  cat.y += dir.dy * MOVE_SPEED;
+  const dir = DIRECTIONS[character.direction];
+  character.x += dir.dx * MOVE_SPEED;
+  character.y += dir.dy * MOVE_SPEED;
 
   // Clamp position within bounds
-  cat.x = Math.max(0, Math.min(BOX_WIDTH - SPRITE_SIZE, cat.x));
-  cat.y = Math.max(0, Math.min(BOX_HEIGHT - SPRITE_SIZE, cat.y));
+  character.x = Math.max(0, Math.min(BOX_WIDTH - SPRITE_SIZE, character.x));
+  character.y = Math.max(0, Math.min(BOX_HEIGHT - SPRITE_SIZE, character.y));
 
   updatePosition();
 }

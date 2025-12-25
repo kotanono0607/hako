@@ -62,24 +62,12 @@ html, body {
   pointer-events: none;
 }
 
-.cat {
+.character {
   position: absolute;
   width: 64px;
   height: 64px;
-  background-image: url('/src/assets/cat_sprite.svg');
-  background-size: 192px 256px;
+  background-size: contain;
   background-repeat: no-repeat;
+  background-position: center bottom;
   image-rendering: pixelated;
-  transition: none;
 }
-
-/* Direction classes - sprite positions */
-.cat.down { background-position-y: 0px; }
-.cat.left { background-position-y: -64px; }
-.cat.right { background-position-y: -128px; }
-.cat.up { background-position-y: -192px; }
-
-/* Animation frame classes */
-.cat.frame-0 { background-position-x: 0px; }
-.cat.frame-1 { background-position-x: -64px; }
-.cat.frame-2 { background-position-x: -128px; }
