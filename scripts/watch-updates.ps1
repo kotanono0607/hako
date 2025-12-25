@@ -6,13 +6,20 @@
 # 設定: ファイルとフォルダの場所
 # ==========================================
 $desktop = [Environment]::GetFolderPath("Desktop")
-$triggerFile = "$desktop\update_signal.txt"
 $repoPath = "C:\hako"
+
+# トリガーファイル（別々）
+$triggerFileMascot = "$desktop\mascot_update_signal.txt"
+$triggerFilePode = "$desktop\update_signal.txt"
 
 # 音声ファイルの場所
 $soundFolder = "C:\Users\hello\Documents\Sounds"
 $successSound = "$soundFolder\success.wav"
 # $errorSound   = "$soundFolder\error.wav"
+
+# ★起動したいアプリ（実行_pode版.bat）の場所
+$podeAppPath = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell\実行_pode版.bat"
+$podeAppWorkDir = "C:\Users\hello\Documents\WindowsPowerShell\chord\RPA-UI2\UIpowershell"
 
 # チェック間隔（秒）
 $checkInterval = 60
@@ -71,14 +78,25 @@ function Apply-Update($updateInfo) {
     git checkout main --quiet 2>$null
     git pull origin main --quiet 2>$null
 
-    # トリガーファイルを作成
-    $content = @"
+    # トリガーファイルを作成（Desktop Mascot用）
+    $contentMascot = @"
 Desktop Mascot Update Detected
 Time: $(Get-Timestamp)
 Commit: $($updateInfo.RemoteCommit)
 Previous: $($updateInfo.LocalCommit)
 "@
-    $content | Out-File -FilePath $triggerFile -Encoding UTF8
+    $contentMascot | Out-File -FilePath $triggerFileMascot -Encoding UTF8
+    Write-Host "[$(Get-Timestamp)] トリガーファイル作成: $triggerFileMascot" -ForegroundColor Cyan
+
+    # トリガーファイルを作成（Pode版用）
+    $contentPode = @"
+Update Signal
+Time: $(Get-Timestamp)
+Commit: $($updateInfo.RemoteCommit)
+Previous: $($updateInfo.LocalCommit)
+"@
+    $contentPode | Out-File -FilePath $triggerFilePode -Encoding UTF8
+    Write-Host "[$(Get-Timestamp)] トリガーファイル作成: $triggerFilePode" -ForegroundColor Cyan
 }
 
 # ==========================================
@@ -90,7 +108,7 @@ function Start-DesktopMascot {
     # 既存のアプリプロセスを終了（もし実行中なら）
     $existingProcess = Get-Process -Name "Desktop Mascot" -ErrorAction SilentlyContinue
     if ($existingProcess) {
-        Write-Host "[$(Get-Timestamp)] 既存のアプリを終了しています..." -ForegroundColor Yellow
+        Write-Host "[$(Get-Timestamp)] 既存のDesktop Mascotを終了しています..." -ForegroundColor Yellow
         $existingProcess | Stop-Process -Force
         Start-Sleep -Seconds 1
     }
@@ -101,18 +119,30 @@ function Start-DesktopMascot {
 
     if (Test-Path $exePath) {
         # リリースビルドがあれば起動
-        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動しています (Release)..." -ForegroundColor Yellow
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (Release)..." -ForegroundColor Yellow
         Start-Process -FilePath $exePath -WorkingDirectory $repoPath
     }
     elseif (Test-Path $devExePath) {
         # デバッグビルドがあれば起動
-        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動しています (Debug)..." -ForegroundColor Yellow
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (Debug)..." -ForegroundColor Yellow
         Start-Process -FilePath $devExePath -WorkingDirectory $repoPath
     }
     else {
         # ビルドされていない場合は開発サーバーを起動
-        Write-Host "[$(Get-Timestamp)] ビルド済み実行ファイルがないため、開発モードで起動します..." -ForegroundColor Yellow
+        Write-Host "[$(Get-Timestamp)] Desktop Mascot を起動 (開発モード)..." -ForegroundColor Yellow
         Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "cd /d $repoPath && npm run tauri dev" -WorkingDirectory $repoPath
+    }
+}
+
+# ==========================================
+# 関数: Pode版アプリを起動
+# ==========================================
+function Start-PodeApp {
+    if (Test-Path $podeAppPath) {
+        Write-Host "[$(Get-Timestamp)] 実行_pode版.bat を起動..." -ForegroundColor Yellow
+        Start-Process -FilePath $podeAppPath -WorkingDirectory $podeAppWorkDir
+    } else {
+        Write-Warning "[$(Get-Timestamp)] アプリが見つかりません: $podeAppPath"
     }
 }
 
@@ -125,10 +155,13 @@ function Execute-Action {
     # 1. Desktop Mascotアプリを起動
     Start-DesktopMascot
 
-    # 2. 少しだけ間を作る（0.5秒）
+    # 2. Pode版アプリを起動
+    Start-PodeApp
+
+    # 3. 少しだけ間を作る（0.5秒）
     Start-Sleep -Milliseconds 500
 
-    # 3. 成功ボイスを再生
+    # 4. 成功ボイスを再生
     Play-Sound $successSound
 
     Write-Host "[$(Get-Timestamp)] アクション完了！" -ForegroundColor Cyan
@@ -142,7 +175,8 @@ Write-Host " Desktop Mascot 更新監視"
 Write-Host "=========================================="
 Write-Host "[$(Get-Timestamp)] 監視を開始しました..."
 Write-Host "リポジトリ: $repoPath"
-Write-Host "トリガーファイル: $triggerFile"
+Write-Host "トリガーファイル (Mascot): $triggerFileMascot"
+Write-Host "トリガーファイル (Pode): $triggerFilePode"
 Write-Host "チェック間隔: ${checkInterval}秒"
 Write-Host ""
 
@@ -156,11 +190,10 @@ while ($true) {
             Write-Host "  前回: $($updateInfo.LocalCommit.Substring(0,7))" -ForegroundColor Gray
             Write-Host "  最新: $($updateInfo.RemoteCommit.Substring(0,7))" -ForegroundColor Gray
 
-            # 更新を適用
+            # 更新を適用（トリガーファイル作成）
             Apply-Update $updateInfo
-            Write-Host "[$(Get-Timestamp)] トリガーファイルを作成しました: $triggerFile"
 
-            # アクションを実行
+            # アクションを実行（両方のアプリを起動）
             Execute-Action
         }
         else {
