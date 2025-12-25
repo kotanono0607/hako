@@ -219,6 +219,11 @@ function showSpeech(text) {
     clearTimeout(speechTimeout);
   }
 
+  // Stop character movement while speaking
+  character.isMoving = false;
+  character.frameIndex = 1; // Stand frame
+  updateSprite();
+
   // Set text and position
   speechBubble.textContent = text;
   speechBubble.classList.remove('hidden');
@@ -237,6 +242,9 @@ function showSpeech(text) {
 function hideSpeech() {
   if (!speechBubble) return;
   speechBubble.classList.add('hidden');
+
+  // Resume character movement
+  character.isMoving = true;
 }
 
 // Character click handler
