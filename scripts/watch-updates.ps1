@@ -155,13 +155,10 @@ function Execute-Action {
     # 1. Desktop Mascotアプリを起動
     Start-DesktopMascot
 
-    # 2. Pode版アプリを起動
-    Start-PodeApp
-
-    # 3. 少しだけ間を作る（0.5秒）
+    # 2. 少しだけ間を作る（0.5秒）
     Start-Sleep -Milliseconds 500
 
-    # 4. 成功ボイスを再生
+    # 3. 成功ボイスを再生
     Play-Sound $successSound
 
     Write-Host "[$(Get-Timestamp)] アクション完了！" -ForegroundColor Cyan
